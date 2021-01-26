@@ -4,6 +4,11 @@ import matplotlib.animation as animation
 import os
 import argparse
 
+##### todo #####
+#implements other algo
+#clean up code
+#give possibility so specify dpi, framerate, size of output
+
 ##### IMPLEMENTED ALGO #####
 #BUBBLE
 #QUICK
@@ -15,6 +20,7 @@ import argparse
 #STOOGE
 #COMB
 #ODDEVEN
+
 
 def bubblesort(A):    
     swaps = []

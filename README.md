@@ -17,5 +17,8 @@ Various arguments can be specified:
 -c viridis #matplotlib cmap to use
 ```
 
+## To-do
+- Finish readme
+- Implement other algo
 
 

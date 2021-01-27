@@ -20,6 +20,7 @@ import argparse
 #STOOGE
 #COMB
 #ODDEVEN
+#MERGE
 
 
 def bubblesort(A):    
@@ -242,6 +243,55 @@ def oddevensort(arr):
                 swaps.append([i,i+1])
                 isSorted = 0
       
+    return swaps
+
+
+#in-place
+def mergesort(A):
+    global swaps
+    swaps = []
+
+    def _merge(arr, start, mid, end):
+        global swaps
+        start2 = mid + 1; 
+
+        if (arr[mid] <= arr[start2]): 
+            return; 
+
+        while (start <= mid and start2 <= end): 
+
+            if (arr[start] <= arr[start2]): 
+                start += 1; 
+            else: 
+                value = arr[start2]; 
+                index = start2; 
+
+                while (index != start): 
+                    arr[index] = arr[index - 1]; 
+                    swaps.append([index,index-1])
+                    index -= 1; 
+
+                #swaps.append([start2, start])
+                arr[start] = value; 
+
+                start += 1; 
+                mid += 1; 
+                start2 += 1; 
+
+    def _mergeSort(arr, l, r): 
+        global swaps
+        if (l < r): 
+    
+            # Same as (l + r) / 2, but avoids overflow 
+            # for large l and r 
+            m = l + (r - l) // 2; 
+    
+            # Sort first and second halves 
+            _mergeSort(arr, l, m); 
+            _mergeSort(arr, m + 1, r); 
+    
+            _merge(arr, l, m, r); 
+    _mergeSort(A, 0, len(A)-1)
     return swaps
 
 

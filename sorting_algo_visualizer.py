@@ -3,7 +3,16 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
 import argparse
-
+from BubbleSort import BubbleSort
+from QuickSort import QuickSort
+from HeapSort import HeapSort
+from InsertionSort import InsertionSort
+from SelectionSort import SelectionSort
+from CocktailSort import CocktailSort
+from ShellSort import ShellSort
+from StoogeSort import StoogeSort
+from CombSort import CombSort
+from OddEvenSort import OddEvenSort
 ##### todo #####
 #implements other algo
 #clean up code
@@ -21,230 +30,6 @@ import argparse
 #COMB
 #ODDEVEN
 
-
-def bubblesort(A):    
-    swaps = []
-    for i in range(len(A)):
-        for k in range(len(A) - 1, i, -1):
-            if (A[k] < A[k - 1]):
-                swaps.append([k, k - 1])
-                tmp = A[k]
-                A[k] = A[k - 1]
-                A[k - 1] = tmp
-    return swaps
-
-
-def partition(array, begin, end):
-    pivot = begin
-    swaps = []
-    for i in range(begin + 1, end + 1):
-        if array[i] <= array[begin]:
-            pivot += 1
-            array[i], array[pivot] = array[pivot], array[i]
-            swaps.append([i, pivot])
-    array[pivot], array[begin] = array[begin], array[pivot]
-    swaps.append([pivot, begin])
-    return pivot, swaps
-
-def quicksort(array, begin=0, end=None):    
-    global swaps
-    swaps = []
-    if end is None:
-        end = len(array) - 1
-
-    def _quicksort(array, begin, end):
-        global swaps
-        if begin >= end:
-            return
-        pivot, newSwaps = partition(array, begin, end)
-        swaps += newSwaps
-        _quicksort(array, begin, pivot - 1)
-        _quicksort(array, pivot + 1, end)
-    _quicksort(array, begin, end)
-    return swaps
-
-
-def heapsort( aList ):
-    global swaps
-    swaps = []
-    # convert aList to heap
-    length = len( aList ) - 1
-    leastParent = length // 2
-    for i in range ( leastParent, -1, -1 ):
-        moveDown( aList, i, length )
-
-    # flatten heap into sorted array
-    for i in range ( length, 0, -1 ):
-        if aList[0] > aList[i]:
-            swaps.append([0, i])
-            swap( aList, 0, i )
-            moveDown( aList, 0, i - 1 )
-    return swaps
-
-def moveDown( aList, first, last ):
-    global swaps
-    largest = 2 * first + 1
-    while largest <= last:
-        # right child exists and is larger than left child
-        if ( largest < last ) and ( aList[largest] < aList[largest + 1] ):
-            largest += 1
-
-        # right child is larger than parent
-        if aList[largest] > aList[first]:
-            swaps.append([largest, first])
-            swap( aList, largest, first )
-            # move down to largest child
-            first = largest;
-            largest = 2 * first + 1
-        else:
-            return # force exit
-
-
-def swap( A, x, y ):
-    tmp = A[x]
-    A[x] = A[y]
-    A[y] = tmp
-
-
-def insertionsort(A):
-    swaps = []
-    for i in range(1,len(A)):
-        j=i
-        while j > 0 and A[j-1] > A[j]:
-            swap(A, j, j-1)
-            swaps.append([j, j - 1])
-            j = j-1
-    return swaps
-
-
-def selectionsort(A):
-    swaps = []
-    for i in range(len(A)):
-        jMin = i
-        for j in range(i+1,len(A)):
-            if A[j]<A[jMin]:
-                jMin = j
-        if jMin != i:
-            swaps.append([i, jMin])
-            swap(A, i, jMin)
-    return swaps
-
-
-def cocktailsort(A):
-    swapped = True
-    swaps =[]
-    while swapped:
-        swapped = False
-        for i in range(len(A)-1):
-            if A[i] > A[i + 1]:
-                swaps.append([i,i+1])
-                swap(A, i, i+1)
-                swapped = True
-        if swapped == False:
-            break
-        for j in range(len(A)-2, -1,-1):
-            if A[j] > A[j + 1]:
-                swaps.append([j,j+1])
-                swap(A, j, j+1)
-                swapped = True
-    return swaps
-
-
-def shellsort(A): 
-    swaps =[]
-    n = len(A) 
-    gap = n//2
-    while gap > 0: 
-        for i in range(gap,n): 
-            temp = A[i] 
-            j = i 
-            while  j >= gap and A[j-gap] >temp: 
-                A[j] = A[j-gap] 
-                swaps.append([j, j-gap])
-                j -= gap 
-            A[j] = temp 
-            
-        gap //= 2
-    return swaps
-
-
-def stoogesort(A, begin=0, end=None):
-    global swaps
-    swaps = []
-    if end is None:
-        end = len(A) - 1
-
-    def _stoogesort(A, begin, end):
-        global swaps
-        if begin >= end: 
-            return
-        
-        if A[begin]>A[end]: 
-            t = A[begin] 
-            A[begin] = A[end] 
-            A[end] = t 
-            swaps.append([begin, end])
-    
-        if end-begin+1 > 2: 
-            t = (int)((end-begin+1)/3) 
-    
-            #first 2/3 elements 
-            _stoogesort(A, begin, (end-t)) 
-    
-            #last 2/3 elements 
-            _stoogesort(A, begin+t, (end)) 
-    
-            #2/3 elements 
-            _stoogesort(A, begin, (end-t))
-    _stoogesort(A, begin, end)
-    return swaps
-
-def combsort(data):
-    length = len(data)
-    shrink = 1.3
-    _gap = length
-    sorted = False
-    swaps = []
-
-    while not sorted:
-        _gap /= shrink
-        gap = int(_gap)
-        if gap <= 1:
-            sorted = True
-            gap = 1
-        
-        for i in range(length - gap):
-            sm = gap + i
-            if data[i] > data[sm]:
-                data[i], data[sm] = data[sm], data[i]
-                swaps.append([i,sm])
-                sorted = False
-
-    return swaps
-
-def oddevensort(arr): 
-    swaps = []
-    n=len(arr)
-    isSorted = 0
-
-    while isSorted == 0: 
-        isSorted = 1
-        temp = 0
-        for i in range(1, n-1, 2): 
-            if arr[i] > arr[i+1]: 
-                arr[i], arr[i+1] = arr[i+1], arr[i] 
-                swaps.append([i,i+1])
-                isSorted = 0
-                  
-        for i in range(0, n-1, 2): 
-            if arr[i] > arr[i+1]: 
-                arr[i], arr[i+1] = arr[i+1], arr[i] 
-                swaps.append([i,i+1])
-                isSorted = 0
-      
-    return swaps
-
-
 def videovisualize(sorter, cmap):    
     image = np.zeros((140, 120))
     for i in range(image.shape[1]):
@@ -254,10 +39,10 @@ def videovisualize(sorter, cmap):
 
     maxMoves = 0
     moves = []
-    sorter_to_use = eval(str(sorter)+'sort')
+    sorter_to_use = eval(str(sorter))
     for i in range(image.shape[0]):
         newMoves = []
-        newMoves = sorter_to_use(list(image[i,:]))
+        newMoves = sorter_to_use(list(image[i,:])).sort()
         if len(newMoves) > maxMoves:
             maxMoves = len(newMoves)
         moves.append(newMoves)
@@ -306,8 +91,7 @@ def videovisualize(sorter, cmap):
 def imagevisualize(sorter, order, cmap):
     image = get_list_for_image(order)
     newMoves = []
-    sorter_to_use = eval(str(sorter)+'sort')
-    newMoves = sorter_to_use(list(image))
+    newMoves = eval(str(sorter))(list(image)).sort()
     newimage=image
     temp = len(newMoves) // 700
     if temp ==0:
@@ -384,7 +168,7 @@ if __name__ == "__main__":
         description="Sorting Algorithms Visualizer. By default, produce a bubblesort visualization"
     )
     parser.add_argument(
-        "-sorter", type=str, default="bubble", help="sorting algorithm to use."
+        "-sorter", type=str, default="BubbleSort", help="sorting algorithm to use."
     )
     parser.add_argument(
         "-out", type=str, default="video", help="Type of output to produce, -o video or -o image"

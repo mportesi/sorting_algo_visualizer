@@ -4,11 +4,6 @@ import matplotlib.animation as animation
 import os
 import argparse
 
-##### todo #####
-#implements other algo
-#clean up code
-#give possibility so specify dpi, framerate, size of output
-
 ##### IMPLEMENTED ALGO #####
 #BUBBLE
 #QUICK
@@ -20,8 +15,8 @@ import argparse
 #STOOGE
 #COMB
 #ODDEVEN
-#MERGE
-
+#TIM
+#DUALPIVOTQUICK
 
 def bubblesort(A):    
     swaps = []
@@ -64,6 +59,61 @@ def quicksort(array, begin=0, end=None):
     _quicksort(array, begin, end)
     return swaps
 
+def dualpivotquicksort(A): 
+    global swaps
+    swaps = []
+
+    def _partitionDualPivot(arr, low, high): 
+        global swaps
+        if arr[low] > arr[high]: 
+            arr[low], arr[high] = arr[high], arr[low] 
+            swaps.append([low, high])
+            
+        j = k = low + 1
+        g, p, q = high - 1, arr[low], arr[high] 
+        
+        while k <= g: 
+            
+            if arr[k] < p: 
+                arr[k], arr[j] = arr[j], arr[k] 
+                swaps.append([k,j])
+                j += 1
+
+            elif arr[k] >= q: 
+                while arr[g] > q and k < g: 
+                    g -= 1
+                    
+                arr[k], arr[g] = arr[g], arr[k] 
+                swaps.append([k,g])
+                g -= 1
+                
+                if arr[k] < p: 
+                    arr[k], arr[j] = arr[j], arr[k] 
+                    swaps.append([k,j])
+                    j += 1
+                    
+            k += 1
+            
+        j -= 1
+        g += 1
+        
+        arr[low], arr[j] = arr[j], arr[low] 
+        swaps.append([low,j])
+        arr[high], arr[g] = arr[g], arr[high] 
+        swaps.append([high,g])
+        
+        return j, g 
+
+    def _dualPivotQuickSort(arr, low, high): 
+        global swaps
+        if low < high: 
+            lp, rp = _partitionDualPivot(arr, low, high) 
+            _dualPivotQuickSort(arr, low, lp - 1) 
+            _dualPivotQuickSort(arr, lp + 1, rp - 1) 
+            _dualPivotQuickSort(arr, rp + 1, high) 
+
+    _dualPivotQuickSort(A,0,len(A)-1)
+    return swaps
 
 def heapsort( aList ):
     global swaps
@@ -108,15 +158,59 @@ def swap( A, x, y ):
 
 
 def insertionsort(A):
+    return _insertionsort(A, 0, len(A)-1)
+
+def _insertionsort(A, left, right):
     swaps = []
-    for i in range(1,len(A)):
-        j=i
-        while j > 0 and A[j-1] > A[j]:
-            swap(A, j, j-1)
-            swaps.append([j, j - 1])
-            j = j-1
+    for i in range(left + 1, right + 1): 
+        j = i 
+        while j > left and A[j] < A[j - 1]: 
+            A[j], A[j - 1] = A[j - 1], A[j]
+            swaps.append([j, j-1])
+            j -= 1
     return swaps
 
+
+def timsort(arr): 
+    global swaps
+    swaps = []
+    MIN_MERGE = 32
+    def _calcMinRun(n): 
+        """Returns the minimum length of a  
+        run from 23 - 64 so that 
+        the len(array)/minrun is less than or  
+        equal to a power of 2. 
+    
+        e.g. 1=>1, ..., 63=>63, 64=>32, 65=>33,  
+        ..., 127=>64, 128=>32, ... 
+        """
+        r = 0
+        while n >= MIN_MERGE: 
+            r |= n & 1
+            n >>= 1
+        return n + r 
+    
+    n = len(arr) 
+    minRun = _calcMinRun(n) 
+      
+    # Sort individual subarrays of size RUN 
+    for start in range(0, n, minRun): 
+        end = min(start + minRun - 1, n - 1) 
+        swaps += _insertionsort(arr, start, end) 
+  
+    # Start merging from size RUN (or 32). It will merge 
+    # to form size 64, then 128, 256 and so on .... 
+    size = minRun 
+    while size < n: 
+        for left in range(0, n, 2 * size): 
+
+            mid = min(n - 1, left + size - 1) 
+            right = min((left + 2 * size - 1), (n - 1)) 
+  
+            _merge(arr, left, mid, right) 
+  
+        size = 2 * size 
+    return swaps
 
 def selectionsort(A):
     swaps = []
@@ -242,41 +336,41 @@ def oddevensort(arr):
                 arr[i], arr[i+1] = arr[i+1], arr[i] 
                 swaps.append([i,i+1])
                 isSorted = 0
-      
     return swaps
 
 
+def _merge(arr, start, mid, end):
+    global swaps
+    start2 = mid + 1; 
+
+    if (arr[mid] <= arr[start2]): 
+        return; 
+
+    while (start <= mid and start2 <= end): 
+
+        if (arr[start] <= arr[start2]): 
+            start += 1; 
+        else: 
+            value = arr[start2]; 
+            index = start2; 
+
+            while (index != start): 
+                arr[index] = arr[index - 1]; 
+                swaps.append([index,index-1])
+                index -= 1; 
+
+            #swaps.append([start2, start])
+            arr[start] = value; 
+
+            start += 1; 
+            mid += 1; 
+            start2 += 1; 
+    
 #in-place
 def mergesort(A):
     global swaps
     swaps = []
 
-    def _merge(arr, start, mid, end):
-        global swaps
-        start2 = mid + 1; 
-
-        if (arr[mid] <= arr[start2]): 
-            return; 
-
-        while (start <= mid and start2 <= end): 
-
-            if (arr[start] <= arr[start2]): 
-                start += 1; 
-            else: 
-                value = arr[start2]; 
-                index = start2; 
-
-                while (index != start): 
-                    arr[index] = arr[index - 1]; 
-                    swaps.append([index,index-1])
-                    index -= 1; 
-
-                #swaps.append([start2, start])
-                arr[start] = value; 
-
-                start += 1; 
-                mid += 1; 
-                start2 += 1; 
 
     def _mergeSort(arr, l, r): 
         global swaps
